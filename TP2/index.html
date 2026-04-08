@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="auto">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Image Search Engine — localhost:5000</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="loading-bar" id="loadingBar"></div>
+  <div class="toast" id="toast"></div>
+
+  <!-- ─── Top Bar ──────────────────────────────── -->
+  <div class="topbar">
+    <div class="tab-group">
+      <div class="tab active" onclick="switchTab('search', this)">Search</div>
+      <div class="tab" onclick="switchTab('analysis', this)">Analysis</div>
+      <div class="tab" onclick="switchTab('code', this)">Code</div>
+    </div>
+
+    <div class="url-bar">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+      </svg>
+      localhost:5000/image-search-engine
+    </div>
+
+    <div class="topbar-right">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText">Connecting…</span>
+    </div>
+  </div>
+
+  <!-- ─── Layout ──────────────────────────────── -->
+  <div class="layout">
+
+    <!-- ─── Sidebar ─────────────────────────── -->
+    <aside class="sidebar">
+
+      <!-- Upload -->
+      <div>
+        <div class="section-label">Query image</div>
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <input type="file" id="fileInput" accept="image/*" onchange="onFileSelected(event)" />
+          <img class="upload-thumb" id="uploadThumb" alt="query" />
+          <div id="uploadText">
+            <div style="font-size:22px; margin-bottom:4px;">⬆</div>
+            <div>Click to upload image</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Descriptors -->
+      <div>
+        <div class="section-label">Descriptors</div>
+        <div class="pill-group">
+          <span class="pill pill-color">HSV 96d</span>
+          <span class="pill pill-lbp">LBP 10d</span>
+          <span class="pill pill-glcm">GLCM 4d</span>
+          <span class="pill pill-hog">HOG 1764d</span>
+        </div>
+      </div>
+
+      <!-- Distance method -->
+      <div>
+        <div class="section-label">Distance method</div>
+        <select class="ctrl-select" id="distanceMethod" onchange="onMethodChange()">
+          <option value="combinee">Combinée (weighted)</option>
+          <option value="euclidienne">Euclidienne</option>
+          <option value="chi2">Chi-carré</option>
+          <option value="cosinus">Cosinus</option>
+        </select>
+      </div>
+
+      <!-- Weights -->
+      <div id="weightsSection">
+        <div class="section-label">Descriptor weights</div>
+        <div class="slider-block">
+          <div class="slider-row">
+            <div class="slider-label"><span class="dot dot-color"></span>Color</div>
+            <input type="range" id="wColor" min="0" max="100" value="40" oninput="updateSlider('wColorVal', this.value)">
+            <div class="slider-val" id="wColorVal">40%</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span class="dot dot-lbp"></span>LBP</div>
+            <input type="range" id="wLbp" min="0" max="100" value="20" oninput="updateSlider('wLbpVal', this.value)">
+            <div class="slider-val" id="wLbpVal">20%</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span class="dot dot-glcm"></span>GLCM</div>
+            <input type="range" id="wGlcm" min="0" max="100" value="10" oninput="updateSlider('wGlcmVal', this.value)">
+            <div class="slider-val" id="wGlcmVal">10%</div>
+          </div>
+          <div class="slider-row">
+            <div class="slider-label"><span class="dot dot-hog"></span>HOG</div>
+            <input type="range" id="wHog" min="0" max="100" value="30" oninput="updateSlider('wHogVal', this.value)">
+            <div class="slider-val" id="wHogVal">30%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- k results -->
+      <div>
+        <div class="section-label">Results (k)</div>
+        <div class="k-row">
+          <input type="range" id="kSlider" min="1" max="12" value="6"
+            oninput="document.getElementById('kVal').textContent = this.value" style="flex:1;">
+          <span id="kVal" style="font-size:13px; font-weight:700; color:var(--accent); min-width:18px; text-align:right;">6</span>
+        </div>
+      </div>
+
+      <!-- Search button -->
+      <button class="btn-search" id="searchBtn" onclick="doSearch()">Rechercher ↗</button>
+
+      <!-- Reindex button -->
+      <button class="btn-reindex" onclick="doReindex()">↺ Re-index database</button>
+
+    </aside>
+
+    <!-- ─── Main Area ─────────────────────────── -->
+    <main class="main">
+
+      <!-- ── Search Tab ── -->
+      <div class="tab-panel active" id="panel-search">
+
+        <div class="metrics-row">
+          <div class="metric-card">
+            <div class="mc-label">Database size</div>
+            <div class="mc-value" id="metaDb">—</div>
+            <div class="mc-unit">images</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Feature dims.</div>
+            <div class="mc-value" id="metaDims">—</div>
+            <div class="mc-unit">dimensions</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Processing time</div>
+            <div class="mc-value" id="metaTime">—</div>
+            <div class="mc-unit">seconds</div>
+          </div>
+          <div class="metric-card">
+            <div class="mc-label">Best score</div>
+            <div class="mc-value" id="metaBest">—</div>
+            <div class="mc-unit">distance</div>
+          </div>
+        </div>
+
+        <div class="toolbar-row">
+          <h2>Results</h2>
+          <div class="sort-group">
+            <button class="sort-btn active" id="sortDist" onclick="sortResults('dist', this)">Sort by distance</button>
+            <button class="sort-btn" id="sortName" onclick="sortResults('name', this)">Sort by name</button>
+          </div>
+        </div>
+
+        <div class="results-grid" id="resultsGrid">
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="icon">🔍</div>
+            <div>Upload an image and click <strong>Rechercher</strong></div>
+          </div>
+        </div>
+
+        <div class="detail-panel" id="detailPanel">
+          <div class="detail-header">
+            <h3 id="detailTitle">Image details</h3>
+            <div class="close-btn" onclick="closeDetail()">✕</div>
+          </div>
+          <div class="desc-bars" id="descBars"></div>
+        </div>
+
+      </div><!-- /panel-search -->
+
+      <!-- ── Analysis Tab ── -->
+      <div class="tab-panel" id="panel-analysis">
+        <div class="toolbar-row">
+          <h2>Comparison by distance method — top 3</h2>
+        </div>
+        <div class="analysis-grid" id="analysisGrid">
+          <div class="empty-state" style="grid-column:1/-1;">
+            <div class="icon">📊</div>
+            <div>Run a search first to see the comparison</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Code Tab ── -->
+      <div class="tab-panel" id="panel-code">
+        <div class="toolbar-row">
+          <h2>API reference &amp; descriptor signatures</h2>
+        </div>
+        <div class="code-block" id="codeBlock"></div>
+      </div>
+
+    </main>
+  </div>
+
+<script src="index.js"></script>
+</body>
+</html>
