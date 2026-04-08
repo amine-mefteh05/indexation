@@ -39,6 +39,7 @@ async function checkServer() {
     const r = await fetch(`${API}/api/stats`, {
       signal: AbortSignal.timeout(3000),
     });
+    if (!r.ok) throw new Error("Server offline");
     const d = await r.json();
     document.getElementById("statusDot").classList.remove("offline");
     document.getElementById("statusText").textContent = "Server running";
@@ -293,6 +294,7 @@ async function runAnalysis() {
           method: "POST",
           body: form,
         });
+        if (!res.ok) throw new Error("Search failed");
         const data = await res.json();
         results[m] = data.results || [];
       } catch {
@@ -348,6 +350,7 @@ async function doReindex() {
   showToast("Re-indexing database…");
   try {
     const res = await fetch(`${API}/api/index`, { method: "POST" });
+    if (!res.ok) throw new Error("Re-index failed");
     const data = await res.json();
     showToast(`✓ Indexed ${data.indexed} images.`);
     checkServer();
