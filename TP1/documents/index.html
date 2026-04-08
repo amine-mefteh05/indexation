@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insertion de Document | Portail</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg-gradient-1: #0f172a;
+            --bg-gradient-2: #1e1b4b;
+            --bg-shape-1: #4338ca;
+            --bg-shape-2: #818cf8;
+            --text-main: #f8fafc;
+            --text-muted: #cbd5e1;
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated background shapes */
+        .shape {
+            position: absolute;
+            filter: blur(80px);
+            z-index: 0;
+            opacity: 0.5;
+            animation: float 20s infinite ease-in-out alternate;
+        }
+        
+        .shape-1 {
+            width: 400px;
+            height: 400px;
+            background: var(--bg-shape-1);
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+        }
+
+        .shape-2 {
+            width: 300px;
+            height: 300px;
+            background: var(--bg-shape-2);
+            bottom: -50px;
+            right: -50px;
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+            50% { transform: translate(50px, 30px) rotate(10deg) scale(1.1); }
+            100% { transform: translate(-30px, 50px) rotate(-10deg) scale(0.9); }
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 40px 50px;
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 450px;
+            transform: translateY(20px);
+            opacity: 0;
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, #a5b4fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            transition: color 0.3s ease;
+        }
+
+        .form-group:focus-within label {
+            color: var(--primary-color);
+        }
+
+        input[type="text"],
+        input[type="file"] {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white;
+            font-family: inherit;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        input[type="file"] {
+            padding: 10px;
+            color: var(--text-muted);
+        }
+
+        input[type="file"]::file-selector-button {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            background: var(--primary-color);
+            color: white;
+            font-family: inherit;
+            font-weight: 600;
+            cursor: pointer;
+            margin-right: 12px;
+            transition: background 0.3s ease;
+        }
+
+        input[type="file"]::file-selector-button:hover {
+            background: var(--primary-hover);
+        }
+
+        input[type="text"]:focus,
+        input[type="file"]:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+            border: none;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 12px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6);
+        }
+
+        button:active {
+            transform: translateY(1px);
+        }
+
+        .link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .link a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .link a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            background: var(--primary-color);
+            transition: all 0.3s ease;
+            transform: translateX(-50%);
+        }
+
+        .link a:hover {
+            color: white;
+        }
+
+        .link a:hover::after {
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+<div class="shape shape-1"></div>
+<div class="shape shape-2"></div>
+
+<div class="container">
+    <h2>Ajouter un document</h2>
+
+    <form action="upload.php" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="document">Choisir le document</label>
+            <input type="file" id="document" name="document" required>
+        </div>
+
+        <div class="form-group">
+            <label for="description">Description</label>
+            <input type="text" id="description" name="description" placeholder="Ex: Rapport annuel 2026" required>
+        </div>
+
+        <div class="form-group">
+            <label for="keywords">Mots-clés</label>
+            <input type="text" id="keywords" name="keywords" placeholder="Ex: rapport, pdf, 2026" required>
+        </div>
+
+        <button type="submit">Envoyer le Document</button>
+    </form>
+
+    <div class="link">
+        <a href="search.html">← Aller à la recherche</a>
+    </div>
+</div>
+
+</body>
+</html>
