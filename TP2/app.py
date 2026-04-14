@@ -161,10 +161,6 @@ def search():
     })
 
 if __name__ == "__main__":
-    # Ensure images folder exists
-    if not os.path.exists(IMAGE_DIR):
-        os.makedirs(IMAGE_DIR)
-        
     print("[INFO] Demarrage du serveur API de recherche d'images...")
     print("[INFO] Interface web disponible sur: http://127.0.0.1:5000/")
     app.run(host="127.0.0.1", port=5000, debug=True)

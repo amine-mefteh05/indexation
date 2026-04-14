@@ -96,7 +96,7 @@ def extraire_descripteurs(img):
     """
     Concatène tous les descripteurs en un seul vecteur caractéristique.
     """
-    couleur  = extraire_histogramme_couleur(img)   # 96 dims
+    couleur  = extraire_histogramme_couleur(img)  
     lbp      = extraire_lbp(img)                   # 10 dims
     glcm     = extraire_glcm(img)                  #  4 dims
     hog_feat = extraire_hog(img)                   # variable (fixe par image)
@@ -258,18 +258,20 @@ def recherche_similaire(img_requete, images_base, descripteurs_base, noms_base,
 #  5. ANALYSE COMPARATIVE DES MÉTHODES
 # ─────────────────────────────────────────────
 
+methodes = ['euclidienne', 'cosinus', 'chi2', 'combinee']
+fonctions = {
+    'euclidienne': distance_euclidienne,
+    'cosinus':     distance_cosinus,
+    'chi2':        distance_chi2,
+    'combinee':    distance_combinee,
+}
+
 def comparer_methodes(img_requete, images_base, descripteurs_base, noms_base, k=3):
     """
     Affiche les résultats des 4 méthodes de distance côte à côte
     pour faciliter l'analyse comparative.
     """
-    methodes = ['euclidienne', 'cosinus', 'chi2', 'combinee']
-    fonctions = {
-        'euclidienne': distance_euclidienne,
-        'cosinus':     distance_cosinus,
-        'chi2':        distance_chi2,
-        'combinee':    distance_combinee,
-    }
+
 
     desc_req = extraire_descripteurs(img_requete)
 
